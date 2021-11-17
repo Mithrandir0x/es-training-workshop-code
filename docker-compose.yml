@@ -1,0 +1,35 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - cluster.name=workshop-cluster
+      - discovery.zen.minimum_master_nodes=1
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ../.data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.1.1
+    links:
+      - elasticsearch:elasticsearch
+    expose:
+      - 5601
+    ports:
+      - 5601:5601
